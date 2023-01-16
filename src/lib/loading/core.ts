@@ -1,6 +1,15 @@
-import { AsyncThunk, PayloadAction, Draft } from "@reduxjs/toolkit";
+import {
+  AsyncThunk,
+  PayloadAction,
+  Draft,
+  isPending,
+  isFulfilled,
+  isRejected,
+} from "@reduxjs/toolkit";
+import { Matcher, Reducer } from "../common";
+
 import { makePending, makeFulfilled, makeRejected } from "./constructors";
-import { LoadingOptions } from "./options";
+import { MakeLoadingMatcherOpts } from "./options";
 import { joinLoading, JoinOptions } from "./util";
 
 export interface LoadingPending {
@@ -37,11 +46,8 @@ export const makeLoadingMatcher = <
   Meta = { arg: Arg }
 >(
   thunk: AsyncThunk<Result, Arg, any>,
-  opts?: LoadingOptions.MakeLoadingMatcherOpts<State, Result, Meta>
-): [
-  LoadingOptions.LoadingMatcher,
-  LoadingOptions.LoadingReducer<State, Result, Meta>
-] => {
+  opts?: MakeLoadingMatcherOpts<State, Result, Meta>
+): [Matcher, Reducer<State, Result, Meta>] => {
   return [
     (action: PayloadAction<any, string>) =>
       action.type.startsWith(thunk.typePrefix),
@@ -93,9 +99,9 @@ export const makeLoadingMatcher = <
         afterHandler?.(state, action);
       };
 
-      if (action.type.endsWith("pending")) reduce("pending");
-      else if (action.type.endsWith("rejected")) reduce("rejected");
-      else if (action.type.endsWith("fulfilled")) reduce("fulfilled");
+      if (isPending(action)) return reduce("pending");
+      if (isRejected(action)) return reduce("rejected");
+      if (isFulfilled(action)) return reduce("fulfilled");
     },
   ];
 };

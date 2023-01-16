@@ -1,3 +1,8 @@
+export * from "./loading";
+export * as loading from "./loading";
+export * from "./thunk";
+export * as thunk from "./thunk";
+
 import {
   ActionReducerMapBuilder,
   AsyncThunk,
@@ -7,17 +12,19 @@ import {
 } from "@reduxjs/toolkit";
 import { TypedActionCreator } from "@reduxjs/toolkit/dist/mapBuilders";
 import { TypeGuard } from "@reduxjs/toolkit/dist/tsHelpers";
-import { makeLoadingMatcher } from "./core";
-import { LoadingOptions } from "./options";
+import { makeLoadingMatcher } from "./loading";
+import { MakeLoadingMatcherOpts } from "./loading/options";
+import { makeThunkMatcher } from "./thunk";
+import { MakeThunkMatcherOptsOrHandler } from "./thunk/options";
 interface ActionReducerMapBuilderWithExtensions<State> {
   _inner: ActionReducerMapBuilder<State>;
   addLoadingMatcher<Result = any, Arg = any, Meta = { arg: Arg }>(
     thunk: AsyncThunk<Result, Arg, any>,
-    opts?: LoadingOptions.MakeLoadingMatcherOpts<State, Result, Meta>
+    opts?: MakeLoadingMatcherOpts<State, Result, Meta>
   ): ActionReducerMapBuilderWithExtensions<State>;
   addThunkMatcher<Result = any, Arg = any, Meta = { arg: Arg }>(
     thunk: AsyncThunk<Result, Arg, any>,
-    opts?: LoadingOptions.MakeLoadingMatcherOpts<State, Result, Meta>
+    opts?: MakeThunkMatcherOptsOrHandler<State, Result, Meta>
   ): ActionReducerMapBuilderWithExtensions<State>;
   addCase<ActionCreator extends TypedActionCreator<string>>(
     actionCreator: ActionCreator,
@@ -41,7 +48,7 @@ export const addExtensions = <State>(
   b._inner = builder;
   b.addLoadingMatcher = function <Result = any, Arg = any, Meta = { arg: Arg }>(
     thunk: AsyncThunk<Result, Arg, any>,
-    opts?: LoadingOptions.MakeLoadingMatcherOpts<State, Result, Meta>
+    opts?: MakeLoadingMatcherOpts<State, Result, Meta>
   ): ActionReducerMapBuilder<State> {
     this._inner.addMatcher(
       ...makeLoadingMatcher<State, Result, Arg, Meta>(thunk, opts)
@@ -50,10 +57,10 @@ export const addExtensions = <State>(
   };
   b.addThunkMatcher = function <Result = any, Arg = any, Meta = { arg: Arg }>(
     thunk: AsyncThunk<Result, Arg, any>,
-    opts?: LoadingOptions.MakeLoadingMatcherOpts<State, Result, Meta>
+    opts?: MakeThunkMatcherOptsOrHandler<State, Result, Meta>
   ): ActionReducerMapBuilder<State> {
     this._inner.addMatcher(
-      ...makeLoadingMatcher<State, Result, Arg, Meta>(thunk, opts)
+      ...makeThunkMatcher<State, Result, Arg, Meta>(thunk, opts)
     );
     return this;
   };

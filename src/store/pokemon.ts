@@ -8,8 +8,8 @@ import {
   makeFulfilled,
   makeLoadingMatcher,
   makePending,
-  addExtensions,
 } from "../lib/loading";
+import { addExtensions } from "../lib";
 
 export const fetchPokemon = createAsyncThunk(
   "pokemon/fetch",
@@ -29,7 +29,8 @@ export const fetchPokemonWithCaching = createAsyncThunk(
 
 export interface PokemonState {
   cache: Record<number, Loading<Pokemon>>;
-  selectedPokemon?: Loading<Pokemon>;
+  selectedPokemon?: Pokemon;
+  selectedPokemonName?: string;
 }
 
 const initialState: PokemonState = {
@@ -41,16 +42,10 @@ export const pokemonSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) =>
-    addExtensions(builder)
-      .addLoadingMatcher(fetchPokemon, {
-        field: "selectedPokemon",
-      })
-      .addLoadingMatcher(fetchPokemonWithCaching, {
-        field: "selectedPokemon",
-        afterFulfilled(state, { payload, meta }) {
-          state.cache[meta.arg] = payload;
-        },
-      }),
+    addExtensions(builder).addThunkMatcher(fetchPokemon, {
+      field: "selectedPokemonName",
+      transform: (result) => result.name,
+    }),
 });
 
 // export const {  } = pokemonSlice.actions;

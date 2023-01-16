@@ -5,7 +5,7 @@ import { Pokemon } from "./types/api.pokemon";
 const instance = createInstance();
 
 export const RawPokemonApi = {
-  byId: (id: number) => call({ instance, uri: `/pokemon/${id}` }),
+  byId: (id: number) => call<Pokemon>({ instance, uri: `/pokemon/${id}` }),
 };
 
 export const PokemonApi = createApi({

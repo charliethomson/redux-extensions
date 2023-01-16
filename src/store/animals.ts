@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AnimalApi from "../api/api.animals";
 import { Animal, AnimalDetails, AnimalId, Cat } from "../api/types/api.animals";
-import { Loading, makeIdle, addExtensions } from "../lib/loading";
+import { addExtensions } from "../lib";
+import { Loading, makeIdle } from "../lib/loading";
 
 export const fetchCats = createAsyncThunk("animals/cats", AnimalApi.getCats);
 export const fetchDogs = createAsyncThunk("animals/dogs", AnimalApi.getDogs);
@@ -32,9 +33,7 @@ export const animalSlice = createSlice({
         join: { dedup: "id" },
       })
       .addLoadingMatcher(fetchDogs, {
-        field(state, action, status) {
-          state.animalSearch = status;
-        },
+        field: "animalSearch",
         join: { dedup: "id" },
       })
       .addLoadingMatcher(petDetails, {

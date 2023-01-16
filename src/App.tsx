@@ -24,7 +24,7 @@ const Details: FC<{ id: AnimalId }> = ({ id }) => {
     />
   );
 };
-export const PokemonList = () => {
+export const AnimalList = () => {
   const dispatch = useDispatch();
   const { animals } = useSelector((state: RootState) => ({
     animals: state.animals.animalSearch,
@@ -59,6 +59,47 @@ export const PokemonList = () => {
           <span style={{ color: "red" }}>Error! {error}</span>
         )}
       />
+    </div>
+  );
+};
+
+export const PokemonList = () => {
+  const dispatch = useDispatch();
+  const { selectedPokemon, selectedPokemonName } = useSelector(
+    (state: RootState) => state.pokemon
+  );
+
+  console.log(selectedPokemonName);
+
+  return (
+    <div>
+      <button
+        onClick={() =>
+          dispatch(fetchPokemon(Math.floor(Math.random() * 10) + 1))
+        }
+      >
+        fetch a pokemon!
+      </button>
+      {selectedPokemon ? (
+        <div>
+          <p>
+            {selectedPokemonName} - {selectedPokemon.id}
+          </p>
+          <p>
+            {selectedPokemon.types.map((ty) => (
+              <span
+                key={ty.slot}
+                color="darkgray"
+                style={{ paddingRight: "0.5rem" }}
+              >
+                {ty.type.name}
+              </span>
+            ))}
+          </p>
+        </div>
+      ) : (
+        <span>None selected!</span>
+      )}
     </div>
   );
 };
