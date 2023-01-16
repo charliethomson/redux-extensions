@@ -1,17 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { uniqBy } from "lodash-es";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AnimalApi from "../api/api.animals";
 import { Animal, AnimalDetails, AnimalId, Cat } from "../api/types/api.animals";
-import {
-  isFulfilled,
-  joinLoading,
-  Loading,
-  makeFulfilled,
-  makeIdle,
-  makeRejected,
-  mapLoading,
-  supportLoading,
-} from "../util/loading";
+import { Loading, makeIdle, supportLoading } from "../util/loading";
 
 export const fetchCats = createAsyncThunk("animals/cats", AnimalApi.getCats);
 export const fetchDogs = createAsyncThunk("animals/dogs", AnimalApi.getDogs);

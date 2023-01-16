@@ -61,23 +61,29 @@ export interface AnimalApi {
     getCats: (): Promise<Cat[]>;
     getDogs: (): Promise<Dog[]>;
     getPetDetails: (id: AnimalId): Promise<AnimalDetails>;
+    adoptPet: (id: AnimalId, application: { .. }): Promise<boolean>;
 }
 ```
 
 ```ts
 // animalSlice.ts
-export const fetchCats    = createAsyncThunk("animals/cats",    AnimalApi.getCats);
-export const fetchDogs    = createAsyncThunk("animals/dogs",    AnimalApi.getDogs);
-export const petDetails   = createAsyncThunk("animals/details", AnimalApi.getPetDetails);
+/* regular redux imports go here */
+import { Loading, makeIdle, supportLoading } from "../util/loading";
+
+export const fetchCats = createAsyncThunk("animals/cats", AnimalApi.getCats);
+export const fetchDogs = createAsyncThunk("animals/dogs", AnimalApi.getDogs);
+export const petDetails = createAsyncThunk("animals/details", AnimalApi.getPetDetails);
+export const adoptPet = createAsyncThunk("animals/adopt", AnimalApi.adoptPet);
 
 export interface AnimalState {
-    animalSearch: Loading<Animal[]>;
-    selectedAnimal?: [AnimalId, Animal];
-    animalDetails: Record<AnimalId, Loading<AnimalDetail>>;
+  wasAdoptionSuccessful: Loading<boolean>;
+  animalSearch: Loading<Animal[]>;
+  animalDetails: Record<AnimalId, Loading<AnimalDetails>>;
 }
 
 const initialState: AnimalState = {
-    animalSearch: []
+  animalSearch: makeIdle(),
+  animalDetails: {},
 };
 
 export const animalSlice = createSlice({
@@ -85,14 +91,37 @@ export const animalSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) =>
+  // `supportLoading` is needed to provide the addLoadingMatcher method to the builder
     supportLoading(builder)
-        .addLoadingMatcher(fetchCats, { field: "animals", transform: makeAnimal })
-        .addLoadingMatcher(fetchDogs, { field: "animals", transform: makeAnimal })
-        .addLoadingMatcher(petDetails, { field: "" })
+      // The most simple case - we just want the data and to know what the response was:
+      .addLoadingMatcher(adoptPet, { field: "wasAdoptionSuccessful" })
+      // When we fetch cats, we want to add them to the `animalSearch` array
+      .addLoadingMatcher(fetchCats, {
+        field: "animalSearch",
+        // Here we deduplicate the animalSearch array by the `id` field on `Animal`, keeping the oldest 
+        join: {
+          dedup: "id",
+          // mapper and joiner are options, mapper is similar to transform, but has more logic regarding the status,
+          // by default the join happens with spreads ([...original, ...new]), but you can pass a custom function as `joiner`
+        },
+      })
+      .addLoadingMatcher(fetchDogs, {
+        field(state, action, status) {
+          state.animalSearch = status;
+        },
+        // You can also pass a boolean to `join`, this won't apply any deduplication
+        join: true
+      })
+      .addLoadingMatcher(petDetails, {
+        field: "animalDetails",
+        // byId collects the details by a field provided by the function passed
+        // `animalDetails` is a `Record<AnimalId, AnimalDetail>`, the argument pased to `petDetails` is an `AnimalId`, 
+        // this gives is local loading states, each pet has it's own loading state for it's details
+        byId: (action) => action.meta.arg,
+      }),
 });
 
-// export const {  } = pokemonSlice.actions;
+export default animalSlice.reducer;
 
-export default pokemonSlice.reducer;
 
 ```
