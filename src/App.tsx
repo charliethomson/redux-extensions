@@ -1,13 +1,12 @@
 import React, { FC, useState } from "react";
 import { RootState, useDispatch } from "./store";
 import { useSelector } from "react-redux";
-import { isFulfilled } from "./util/loading";
 import { useByIdQuery } from "./api/api.pokemon";
-import { LoadingSwitch } from "./util/LoadingComponents";
 import { fetchPokemon, fetchPokemonWithCaching } from "./store/pokemon";
 import { fetchCats, fetchDogs, petDetails } from "./store/animals";
 import { identities } from "./api/api.animals";
 import { AnimalId } from "./api/types/api.animals";
+import { LoadingSwitch } from "./lib/loading";
 
 const Details: FC<{ id: AnimalId }> = ({ id }) => {
   const { detail } = useSelector((state: RootState) => ({

@@ -8,8 +8,8 @@ import {
   makeFulfilled,
   makeLoadingMatcher,
   makePending,
-  supportLoading,
-} from "../util/loading";
+  addExtensions,
+} from "../lib/loading";
 
 export const fetchPokemon = createAsyncThunk(
   "pokemon/fetch",
@@ -41,7 +41,7 @@ export const pokemonSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) =>
-    supportLoading(builder)
+    addExtensions(builder)
       .addLoadingMatcher(fetchPokemon, {
         field: "selectedPokemon",
       })
