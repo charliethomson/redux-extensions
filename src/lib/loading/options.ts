@@ -17,9 +17,8 @@ export interface MakeLoadingMatcherOpts<
   K extends keyof Draft<State> = keyof Draft<State>
 > {
   field?: K | FieldSetter<State, Result, Meta>;
-  join?: K extends string
-    ? boolean | JoinOptions<Draft<State>[K], Draft<State>[K]>
-    : never;
+  // FIXME: Typing on this option
+  join?: JoinOptions<any[], any[]>;
   byId?: (action: PayloadAction<Result, string, Meta, any>) => string | number;
   transform?: (result: Result) => Draft<State>[K];
   onPending?: Reducer<State, Result, Meta>;

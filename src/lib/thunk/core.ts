@@ -41,28 +41,21 @@ export const makeThunkMatcher = <
     (action: PayloadAction<any, string>) =>
       action.type.startsWith(thunk.typePrefix),
     (state: Draft<State>, action: PayloadAction<Result, string, Meta, any>) => {
-      console.log(action.type);
-      console.log(opts);
-      if (isFulfilled(action)) {
-        console.table({
-          isHandler: isHandler(opts),
-          isField: isField(opts),
-          isOptions: isOptions(opts),
-        });
+      if (action.type.endsWith("fulfilled")) {
         if (isHandler(opts)) return opts(state, action);
         if (isField(opts)) return setField(state, action, opts);
         if (isOptions(opts)) {
-          if (opts?.field !== undefined) {
-            console.log("Setting :) ", opts);
+          if (opts?.field !== undefined)
             setField(state, action, opts.field, opts.transform);
-          }
           opts.onFulfilled?.(state, action);
         }
       }
 
       if (isOptions(opts)) {
-        if (isPending(action)) return opts.onPending?.(state, action);
-        if (isRejected(action)) return opts.onRejected?.(state, action);
+        if (action.type.endsWith("pending"))
+          return opts.onPending?.(state, action);
+        if (action.type.endsWith("rejected"))
+          return opts.onRejected?.(state, action);
       }
     },
   ];

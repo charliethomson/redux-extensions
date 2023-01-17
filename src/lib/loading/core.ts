@@ -92,16 +92,15 @@ export const makeLoadingMatcher = <
             ] = loadingStatus;
           } else newValue = loadingStatus;
         }
-
         if (newValue && typeof opts?.field === "string")
           (state[opts.field] as Loading<any, any>) = newValue;
 
         afterHandler?.(state, action);
       };
 
-      if (isPending(action)) return reduce("pending");
-      if (isRejected(action)) return reduce("rejected");
-      if (isFulfilled(action)) return reduce("fulfilled");
+      if (action.type.endsWith("pending")) return reduce("pending");
+      if (action.type.endsWith("rejected")) return reduce("rejected");
+      if (action.type.endsWith("fulfilled")) return reduce("fulfilled");
     },
   ];
 };

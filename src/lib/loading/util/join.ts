@@ -1,4 +1,4 @@
-import { uniqBy } from "lodash-es";
+import { uniq, uniqBy } from "lodash-es";
 import { makePending, makeFulfilled } from "../constructors";
 import { Loading } from "../core";
 import {
@@ -18,12 +18,13 @@ export interface JoinOptions<OriginalItems, NewItems> {
   mapper?: (t?: NewItems) => OriginalItems;
   joiner?: (a: OriginalItems, b: OriginalItems) => OriginalItems;
   dedup?:
+    | boolean
     | keyof ArrayType<OriginalItems>
     | ((items: OriginalItems) => OriginalItems);
 }
 export const joinLoading = <
-  OriginalItems extends Array<any>,
-  NewItems extends Array<any>
+  OriginalItems extends any[],
+  NewItems extends any[]
 >(
   original: Loading<OriginalItems>,
   additional: Loading<NewItems>,
@@ -32,6 +33,9 @@ export const joinLoading = <
   const performDedupe = (items: OriginalItems): OriginalItems => {
     // shouldn't be possible, correct behaviour escape hatch
     if (!opts?.dedup) return items;
+
+    // value-wise
+    if (typeof opts.dedup === "boolean") return uniq(items) as OriginalItems;
 
     // manual dedupe
     if (typeof opts.dedup === "function") return opts.dedup(items);
