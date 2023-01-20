@@ -12,15 +12,14 @@ import {
   makeLoadingMatcher,
 } from "..";
 import { Matcher, Reducer } from "../../common";
-import { MakeLoadingMatcherOpts } from "../options";
+import { FieldOpt, MakeLoadingMatcherOpts } from "../options";
 
 interface MockState {
   name: Loading<string>;
   items: Loading<number[]>;
   objects: Loading<{ id: number }[]>;
-  details: Record<number, Loading<string>>;
+  details: Record<string, Loading<string>>;
 }
-
 const defaultState = (): MockState => ({
   details: {},
   items: makeIdle(),
@@ -40,7 +39,7 @@ describe("makeThunkReducer", () => {
   );
   const setup = (
     initialState: MockState = defaultState(),
-    opts?: MakeLoadingMatcherOpts<MockState, string, any>
+    opts: MakeLoadingMatcherOpts<MockState, string, any> = {}
   ): [MockState, Matcher, Reducer<MockState, string, any>] => {
     vi.resetAllMocks();
     const state = vi.mocked<MockState>(
@@ -76,7 +75,7 @@ describe("makeThunkReducer", () => {
 
   it("creates a reducer that updates the status for the correct action", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "name",
+      name: true,
     });
     reducer(state, makeMockAction(mockThunk.pending.toString()));
     expect(isPending(state.name)).toBeTruthy();
@@ -87,9 +86,9 @@ describe("makeThunkReducer", () => {
     expect((state.name as LoadingFulfilled<string>).data).toBe(mockName);
   });
 
-  it("creates a reducer that respects the field option", () => {
+  it("creates a reducer that respects the boolean field", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "name",
+      name: true,
     });
     reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
     expect(isFulfilled(state.name)).toBeTruthy();
@@ -98,8 +97,7 @@ describe("makeThunkReducer", () => {
 
   it("correctly merges items using the join option", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "items",
-      join: true,
+      items: { join: true },
     });
     reducer(state, makeMockAction(mockThunk.fulfilled.toString(), [1, 2, 3]));
     expect(isFulfilled(state.items)).toBeTruthy();
@@ -113,8 +111,9 @@ describe("makeThunkReducer", () => {
   });
   it("correctly merges items using the join option, with deduplication", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "items",
-      join: { dedup: true },
+      items: {
+        join: { dedup: true },
+      },
     });
     reducer(state, makeMockAction(mockThunk.fulfilled.toString(), [1, 2, 3]));
     expect(isFulfilled(state.items)).toBeTruthy();
@@ -128,8 +127,11 @@ describe("makeThunkReducer", () => {
   });
   it("correctly merges items using the join option, with manual deduplication", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "items",
-      join: { dedup: (items: number[]): number[] => uniq(items) },
+      items: {
+        join: {
+          dedup: uniq,
+        },
+      },
     });
     reducer(state, makeMockAction(mockThunk.fulfilled.toString(), [1, 2, 3]));
     expect(isFulfilled(state.items)).toBeTruthy();
@@ -143,8 +145,9 @@ describe("makeThunkReducer", () => {
   });
   it("correctly merges items using the join option, with deduplication (on objects, using the key variant)", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "objects",
-      join: { dedup: "id" },
+      objects: {
+        join: { dedup: "id" },
+      },
     });
     reducer(
       state,
@@ -173,10 +176,11 @@ describe("makeThunkReducer", () => {
 
   it("correctly uses a custom joiner", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "items",
-      join: {
-        joiner(a: number[], b: number[]): number[] {
-          return [...a, ...b.reverse()];
+      items: {
+        join: {
+          joiner(a: number[], b: number[]): number[] {
+            return [...a, ...b.reverse()];
+          },
         },
       },
     });
@@ -192,10 +196,11 @@ describe("makeThunkReducer", () => {
   });
   it("correctly uses a custom mapper", () => {
     const [state, _, reducer] = setup(undefined, {
-      field: "items",
-      join: {
-        mapper(t?: number[]): number[] {
-          return t?.map((i) => i * i) ?? [];
+      items: {
+        join: {
+          mapper(t?: number[]): number[] {
+            return t?.map((i) => i * i) ?? [];
+          },
         },
       },
     });
@@ -209,8 +214,9 @@ describe("makeThunkReducer", () => {
   it("correctly handles independent states using byId", () => {
     const ID = 3;
     const [state, _, reducer] = setup(undefined, {
-      field: "details",
-      byId: (action) => action.meta.arg,
+      details: {
+        byId: (action) => action.meta.arg,
+      },
     });
     reducer(
       state,
@@ -238,7 +244,7 @@ describe("makeThunkReducer", () => {
     const mockAfterRejected = vi.fn();
     const mockAfterFulfilled = vi.fn();
     const [state, _, reducer] = setup(undefined, {
-      field: "name",
+      name: true,
       onPending: mockOnPending,
       onRejected: mockOnRejected,
       onFulfilled: mockOnFulfilled,

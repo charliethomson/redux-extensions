@@ -1,16 +1,23 @@
-import {
-  AsyncThunk,
-  PayloadAction,
-  Draft,
-  isPending,
-  isFulfilled,
-  isRejected,
-} from "@reduxjs/toolkit";
+import { AsyncThunk, PayloadAction, Draft } from "@reduxjs/toolkit";
+import { cloneDeep, merge } from "lodash-es";
 import { Matcher, Reducer } from "../common";
 
-import { makePending, makeFulfilled, makeRejected } from "./constructors";
-import { MakeLoadingMatcherOpts } from "./options";
-import { joinLoading, JoinOptions } from "./util";
+import {
+  makePending,
+  makeFulfilled,
+  makeRejected,
+  makeIdle,
+} from "./constructors";
+import { isFulfilled } from "./identities";
+import {
+  FieldOpt,
+  FieldOpts,
+  isCommonOption,
+  isTransformFunction,
+  MakeLoadingMatcherOpts,
+  TransformFunction,
+} from "./options";
+import { joinLoading, JoinOptions, mapLoading } from "./util";
 
 export interface LoadingPending {
   status: "pending";
@@ -31,13 +38,22 @@ export interface LoadingFulfilled<T> {
   data: T;
 }
 
-export type Loading<T = unknown, E = any> =
+export type Loading<T, E = any> =
   | LoadingPending
   | LoadingIdle
   | LoadingRejected<E>
   | LoadingFulfilled<T>;
 
 export type LoadingStatus = Loading<never, never>["status"];
+
+export type LoadingInner<TLoading> = TLoading extends LoadingFulfilled<infer R>
+  ? R
+  : never;
+export type LoadingInnerErr<TLoading> = TLoading extends LoadingRejected<
+  infer E
+>
+  ? E
+  : never;
 
 export const makeLoadingMatcher = <
   State = any,
@@ -46,54 +62,102 @@ export const makeLoadingMatcher = <
   Meta = { arg: Arg }
 >(
   thunk: AsyncThunk<Result, Arg, any>,
-  opts?: MakeLoadingMatcherOpts<State, Result, Meta>
+  opts: MakeLoadingMatcherOpts<State, Result, Meta>
 ): [Matcher, Reducer<State, Result, Meta>] => {
   return [
     (action: PayloadAction<any, string>) =>
       action.type.startsWith(thunk.typePrefix),
     (state: Draft<State>, action: PayloadAction<Result, string, Meta, any>) => {
       const reduce = (status: Exclude<LoadingStatus, "idle">) => {
-        const { onHandler, afterHandler, loadingStatus } = {
+        const getStatus = (): Loading<Result, typeof action.error> => {
+          if (status === "pending") return makePending();
+          if (status === "rejected") return makeRejected(action.error);
+          return makeFulfilled(action.payload);
+        };
+
+        const doUpdates = (fields: FieldOpts<State, Result, Meta>) => {
+          let fieldUpdates: Partial<State> = { ...(state as State) };
+
+          const originalStatus = getStatus();
+
+          for (const field in fields) {
+            // console.error(
+            //   `${field} = ${JSON.stringify(fields[field])} (${typeof fields[
+            //     field
+            //   ]}) ${originalStatus.status}`
+            // );
+            if (!isFulfilled(originalStatus)) {
+              (fieldUpdates[field] as Loading<any, any>) = originalStatus;
+              continue;
+            }
+
+            // status is fulfilled<Result>
+            let status = cloneDeep<Loading<any>>(originalStatus);
+            const opt = fields[field];
+            if (typeof opt === "object") {
+              if (opt.transform) {
+                status = mapLoading(status, (result?: Result) =>
+                  result ? opt.transform!(result) : null
+                );
+              }
+
+              if (opt.join) {
+                const joinOptions =
+                  typeof opt.join === "boolean"
+                    ? ({} as JoinOptions<any, any>)
+                    : opt.join;
+
+                status = joinLoading(
+                  state[field as keyof Draft<State>] as Loading<any>,
+                  status as Loading<any>,
+                  joinOptions as any
+                );
+              }
+            } else if (typeof opt === "function") {
+              // opt == TransformFunction
+              status = mapLoading(status, (result) =>
+                result
+                  ? (opt as TransformFunction<State, Result, keyof State>)(
+                      result
+                    )
+                  : null
+              );
+            }
+
+            if (typeof opt === "object" && opt.byId) {
+              (fieldUpdates[field] as Record<string, Loading<any, any>>)[
+                opt.byId(action).toString()
+              ] = status;
+            } else {
+              (fieldUpdates[field] as Loading<any, any>) = status;
+            }
+          }
+
+          state = merge(state, fieldUpdates);
+        };
+
+        const { onHandler, afterHandler } = {
           pending: {
             onHandler: opts?.onPending,
             afterHandler: opts?.afterPending,
-            loadingStatus: makePending(),
           },
           fulfilled: {
             onHandler: opts?.onFulfilled,
             afterHandler: opts?.afterFulfilled,
-            loadingStatus: makeFulfilled(
-              opts?.transform ? opts.transform(action.payload) : action.payload
-            ),
           },
           rejected: {
             onHandler: opts?.onRejected,
             afterHandler: opts?.afterRejected,
-            loadingStatus: makeRejected(action.error),
           },
         }[status];
 
+        const fields = Object.fromEntries(
+          Object.entries(opts).filter(([k, _]) => !isCommonOption(k)) as any
+        ) as FieldOpts<State, Result, Meta>;
+
         onHandler?.(state, action);
-        let newValue = undefined;
-        if (typeof opts?.field === "function")
-          opts.field(state, action, loadingStatus);
-        else if (typeof opts?.field === "string") {
-          if (opts.join) {
-            newValue = joinLoading(
-              state[opts.field] as Loading<any>,
-              loadingStatus as Loading<any>,
-              typeof opts.join === "boolean"
-                ? ({} as JoinOptions<any, any>)
-                : opts.join
-            );
-          } else if (opts.byId) {
-            (state[opts.field] as Record<string, any>)[
-              opts.byId(action).toString()
-            ] = loadingStatus;
-          } else newValue = loadingStatus;
-        }
-        if (newValue && typeof opts?.field === "string")
-          (state[opts.field] as Loading<any, any>) = newValue;
+
+        doUpdates(fields);
 
         afterHandler?.(state, action);
       };

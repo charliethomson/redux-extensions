@@ -13,7 +13,10 @@ import { mapLoading } from "./map";
 
 type ArrayType<Parent> = Parent extends Array<infer R> ? R : never;
 
-export interface JoinOptions<OriginalItems, NewItems> {
+export interface JoinOptions<
+  OriginalItems extends any[],
+  NewItems extends any[]
+> {
   /// NOTE: If mapper is not provided it's assumed NewItems === OriginalItems
   mapper?: (t?: NewItems) => OriginalItems;
   joiner?: (a: OriginalItems, b: OriginalItems) => OriginalItems;
