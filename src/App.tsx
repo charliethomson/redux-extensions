@@ -1,11 +1,10 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { RootState, useDispatch } from "./store";
 import { useSelector } from "react-redux";
-import { useByIdQuery } from "./api/api.pokemon";
-import { fetchPokemon, fetchPokemonWithCaching } from "./store/pokemon";
+import { Type } from "./api/api.pokemon";
+import { fetchPokemon } from "./store/pokemon";
 import { fetchCats, fetchDogs, petDetails } from "./store/animals";
-import { identities } from "./api/api.animals";
-import { AnimalId } from "./api/types/api.animals";
+import { AnimalId, identities } from "./api/api.animals";
 import { LoadingSwitch } from "./lib/loading";
 
 const Details: FC<{ id: AnimalId }> = ({ id }) => {
@@ -86,7 +85,7 @@ export const PokemonList = () => {
             {selectedPokemonName} - {selectedPokemon.id}
           </p>
           <p>
-            {selectedPokemon.types.map((ty) => (
+            {selectedPokemon.types.map((ty: Type) => (
               <span
                 key={ty.slot}
                 color="darkgray"

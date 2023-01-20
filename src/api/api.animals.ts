@@ -1,5 +1,44 @@
 import { call, createInstance } from "./api.common";
-import { Animal, AnimalDetails, AnimalId, Cat, Dog } from "./types/api.animals";
+
+export type AnimalId = number;
+export type Unit = string;
+export type OwnerId = number;
+
+export interface Size {
+  amount: number;
+  unit: Unit;
+}
+
+export interface Animal {
+  id: AnimalId;
+  name: string;
+  age: number;
+  imageUrl: string;
+}
+
+export interface Cat extends Animal {
+  hairColor: string;
+  length: Size;
+}
+
+export interface Dog extends Animal {
+  height: Size;
+}
+
+export interface AnimalDetails {
+  breed: string;
+  weight: Size;
+
+  ownerDetails: {
+    ownerId: OwnerId;
+    ownerName: string;
+    ownerContact: {
+      homePhone: string;
+      mobilePhone: string;
+      email: string;
+    };
+  };
+}
 
 const instance = createInstance();
 const TIMEOUT = 500;

@@ -1,8 +1,7 @@
 import { createReducer, PayloadAction } from "@reduxjs/toolkit";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from ".";
-import { Pokemon } from "../api/types/api.pokemon";
-import PokemonApi, { RawPokemonApi } from "../api/api.pokemon";
+import PokemonApi, { Pokemon, RawPokemonApi } from "../api/api.pokemon";
 import {
   Loading,
   makeFulfilled,

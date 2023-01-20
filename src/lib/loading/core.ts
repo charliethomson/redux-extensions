@@ -38,7 +38,7 @@ export interface LoadingFulfilled<T> {
   data: T;
 }
 
-export type Loading<T, E = any> =
+export type Loading<T = unknown, E = any> =
   | LoadingPending
   | LoadingIdle
   | LoadingRejected<E>

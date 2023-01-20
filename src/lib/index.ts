@@ -48,7 +48,7 @@ export const addExtensions = <State>(
   b._inner = builder;
   b.addLoadingMatcher = function <Result = any, Arg = any, Meta = { arg: Arg }>(
     thunk: AsyncThunk<Result, Arg, any>,
-    opts?: MakeLoadingMatcherOpts<State, Result, Meta>
+    opts: MakeLoadingMatcherOpts<State, Result, Meta>
   ): ActionReducerMapBuilder<State> {
     this._inner.addMatcher(
       ...makeLoadingMatcher<State, Result, Arg, Meta>(thunk, opts)
