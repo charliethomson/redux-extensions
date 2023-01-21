@@ -42,8 +42,8 @@ export const pokemonSlice = createSlice({
   reducers: {},
   extraReducers: (builder) =>
     addExtensions(builder).addThunkMatcher(fetchPokemon, {
-      field: "selectedPokemonName",
-      transform: (result) => result.name,
+      selectedPokemonName: (result) => result.name,
+      selectedPokemon: true,
     }),
 });
 

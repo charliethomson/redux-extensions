@@ -6,16 +6,16 @@ export type MakeThunkMatcherOptsOrHandler<State, Result, Meta> =
   | Reducer<State, Result, Meta>
   | (keyof State & keyof Draft<State>);
 
-export interface MakeThunkMatcherOpts<
-  State,
-  Result,
-  Meta,
-  Field extends keyof State & keyof Draft<State> = keyof State &
-    keyof Draft<State>
-> {
-  field?: Field;
-  transform?: (result: Result) => Draft<State>[Field];
+type Handlers<State, Result, Meta> = {
   onPending?: Reducer<State, Result, Meta>;
   onRejected?: Reducer<State, Result, Meta>;
   onFulfilled?: Reducer<State, Result, Meta>;
-}
+};
+
+export type MakeThunkMatcherOpts<State, Result, Meta> = Handlers<
+  State,
+  Result,
+  Meta
+> & {
+  [Field in keyof State]?: boolean | ((result: Result) => State[Field]);
+};

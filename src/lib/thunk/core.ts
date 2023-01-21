@@ -1,11 +1,4 @@
-import {
-  AsyncThunk,
-  PayloadAction,
-  Draft,
-  isFulfilled,
-  isPending,
-  isRejected,
-} from "@reduxjs/toolkit";
+import { AsyncThunk, PayloadAction, Draft } from "@reduxjs/toolkit";
 import { Matcher, Reducer } from "../common";
 import { isField, isHandler, isOptions } from "./identities";
 import { MakeThunkMatcherOptsOrHandler } from "./options";
@@ -26,7 +19,6 @@ const setField = <
     transform ? transform(action.payload) : action.payload
   ) as State[Field];
 };
-isFulfilled;
 
 export const makeThunkMatcher = <
   State = any,
@@ -45,8 +37,21 @@ export const makeThunkMatcher = <
         if (isHandler(opts)) return opts(state, action);
         if (isField(opts)) return setField(state, action, opts);
         if (isOptions(opts)) {
-          if (opts?.field !== undefined)
-            setField(state, action, opts.field, opts.transform);
+          Object.entries(opts)
+            .filter(
+              ([k, _]) =>
+                !["onPending", "onRejected", "onFulfilled"].includes(k)
+            )
+            .forEach(([field, handler]) => {
+              if (typeof handler === "boolean") {
+                (state as State)[field as keyof State] = action.payload as any;
+              } else if (typeof handler === "function") {
+                (state as State)[field as keyof State] = (
+                  handler as unknown as (result: Result) => any
+                )(action.payload);
+              }
+            });
+
           opts.onFulfilled?.(state, action);
         }
       }

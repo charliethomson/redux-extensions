@@ -71,7 +71,7 @@ describe("makeThunkReducer", () => {
   });
 
   it("creates a matcher that respects the field option", () => {
-    const [state, _, reducer] = setup({ field: "name" });
+    const [state, _, reducer] = setup({ name: true });
     expect(state.name).toBeUndefined();
     reducer(state, makeMockAction(mockThunk.pending.toString()));
     expect(state.name).toBeUndefined();
@@ -83,8 +83,7 @@ describe("makeThunkReducer", () => {
   it("creates a matcher that respects the field option with the transform option", () => {
     const expectedName = mockName.slice(0, 5);
     const [state, _, reducer] = setup({
-      field: "name",
-      transform: (name) => name.slice(0, 5),
+      name: (name) => name.slice(0, 5),
     });
     expect(state.name).toBeUndefined();
     reducer(state, makeMockAction(mockThunk.pending.toString()));

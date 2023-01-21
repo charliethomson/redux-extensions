@@ -13,6 +13,6 @@ describe("identities", () => {
   });
 
   it("isOptions correctly categorizes MakeThunkMatcherOptsOrHandler", () => {
-    isOptions({ field: "" });
+    isOptions({});
   });
 });
