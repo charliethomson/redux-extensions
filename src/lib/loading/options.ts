@@ -25,7 +25,7 @@ export type TransformFunction<State, Result, Field extends keyof State> = (
 
 export type FieldSettings<State, Result, Meta, Field extends keyof State> = {
   transform?: TransformFunction<State, Result, Field>;
-  join?: State[Field] extends Loading<any>
+  join?: State[Field] extends Loading<any[]>
     ?
         | boolean
         | JoinOptions<
@@ -44,9 +44,11 @@ export type FieldOpt<State, Result, Meta, Field extends keyof State> =
   | FieldSettings<State, Result, Meta, Field>;
 
 export type FieldOpts<State, Result, Meta> = {
-  [Field in keyof State]?: State[Field] extends Loading<any>
+  [Field in keyof State]?: Loading<any> extends State[Field]
     ? FieldOpt<State, Result, Meta, Field>
-    : State[Field] extends Record<string | number | symbol, Loading<any>>
+    : Loading<any> | undefined extends State[Field]
+    ? FieldOpt<State, Result, Meta, Field>
+    : Record<string | number | symbol, Loading<any>> extends State[Field]
     ? FieldSettings<State, Result, Meta, Field>
     : never;
 };

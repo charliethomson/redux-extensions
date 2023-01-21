@@ -14,11 +14,14 @@ export interface AnimalState {
   animalSearch: Loading<Animal[]>;
   selectedAnimal?: [AnimalId, Animal];
   animalDetails: Record<AnimalId, Loading<AnimalDetails>>;
+  animalDetailsTest: Record<AnimalId, string>;
+  name?: Loading<string>;
 }
 
 const initialState: AnimalState = {
   animalSearch: makeIdle(),
   animalDetails: {},
+  animalDetailsTest: {},
 };
 
 export const animalSlice = createSlice({
@@ -28,9 +31,7 @@ export const animalSlice = createSlice({
   extraReducers: (builder) =>
     addExtensions(builder)
       .addLoadingMatcher(fetchCats, {
-        animalSearch: {
-          join: { dedup: "id" },
-        },
+        animalSearch: { join: { dedup: "id" } },
       })
       .addLoadingMatcher(fetchDogs, {
         animalSearch: {
