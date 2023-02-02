@@ -1,11 +1,12 @@
-name: Publish
+name: Build and test for PRs
 
 on:
-  release:
-    types: [created]
+  push:
+    branches-ignore:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,16 +16,12 @@ jobs:
       - run: npm i
       - run: npm test
 
-  publish-npm:
-    needs: build
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          registry-url: https://registry.npmjs.org/
       - run: npm i
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - run: npm build
