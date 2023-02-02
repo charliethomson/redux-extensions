@@ -6,6 +6,19 @@
   "module": "./dist/react-extensions.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "keywords": [
+    "redux",
+    "loading"
+  ],
+  "author": {
+    "name": "Charlie Thomson",
+    "email": "charlie@thmsn.dev",
+    "url": "https://thmsn.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/charliethomson/redux-extensions"
+  },
   "exports": {
     ".": {
       "import": "./dist/react-extensions.js",
