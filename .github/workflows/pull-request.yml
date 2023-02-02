@@ -1,12 +1,10 @@
-name: Build and test for PRs
-
 on:
   push:
     branches-ignore:
       - main
 
 jobs:
-  test:
+  Test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,7 +14,7 @@ jobs:
       - run: npm i
       - run: npm test
 
-  build:
+  Build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
