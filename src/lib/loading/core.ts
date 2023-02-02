@@ -2,18 +2,11 @@ import { AsyncThunk, PayloadAction, Draft } from "@reduxjs/toolkit";
 import { cloneDeep, merge } from "lodash-es";
 import { Matcher, Reducer } from "../common";
 
-import {
-  makePending,
-  makeFulfilled,
-  makeRejected,
-  makeIdle,
-} from "./constructors";
+import { makePending, makeFulfilled, makeRejected } from "./constructors";
 import { isFulfilled } from "./identities";
 import {
-  FieldOpt,
   FieldOpts,
   isCommonOption,
-  isTransformFunction,
   MakeLoadingMatcherOpts,
   TransformFunction,
 } from "./options";
@@ -81,11 +74,11 @@ export const makeLoadingMatcher = <
           const originalStatus = getStatus();
 
           for (const field in fields) {
-            // console.error(
-            //   `${field} = ${JSON.stringify(fields[field])} (${typeof fields[
-            //     field
-            //   ]}) ${originalStatus.status}`
-            // );
+            console.error(
+              `${field} = ${JSON.stringify(fields[field])} (${typeof fields[
+                field
+              ]}) ${originalStatus.status}`
+            );
             if (!isFulfilled(originalStatus)) {
               (fieldUpdates[field] as Loading<any, any>) = originalStatus;
               continue;

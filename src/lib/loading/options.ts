@@ -64,13 +64,3 @@ export const isCommonOption = <K>(key: K): boolean =>
   key &&
   typeof key === "string" &&
   /(on|after)(Pending|Rejected|Fulfilled)/g.test(key);
-
-export const isTransformFunction = <
-  State,
-  Result,
-  Meta,
-  Field extends keyof State
->(
-  fieldOpt: FieldOpt<State, Result, Meta, Field>
-): fieldOpt is TransformFunction<State, Result, Field> =>
-  typeof fieldOpt === "function";

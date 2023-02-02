@@ -34,9 +34,7 @@ export const animalSlice = createSlice({
         animalSearch: { join: { dedup: "id" } },
       })
       .addLoadingMatcher(fetchDogs, {
-        animalSearch: {
-          join: { dedup: "id" },
-        },
+        animalSearch: true,
       })
       .addLoadingMatcher(petDetails, {
         animalDetails: {
