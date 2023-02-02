@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { isFulfilled, isPending, isRejected, Loading } from "..";
 
 export interface LoadingSwitchProps<T, E> {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Chance } from "chance";
 import { vi, expect, describe, it } from "vitest";
@@ -59,7 +60,9 @@ describe("makeThunkReducer", () => {
   });
 
   it("creates a matcher that respects the reducer option variant", () => {
-    const mockReducer = vi.fn((_s: MockState, _a: PayloadAction<string>) => {});
+    const mockReducer = vi.fn(
+      (_s: MockState, _a: PayloadAction<string>) => undefined
+    );
     const [state, _, reducer] = setup(mockReducer);
     expect(state.name).toBeUndefined();
     reducer(state, makeMockAction(mockThunk.pending.toString()));

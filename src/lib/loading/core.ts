@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-param-reassign */
 import { AsyncThunk, PayloadAction, Draft } from "@reduxjs/toolkit";
 import { cloneDeep, merge } from "lodash-es";
 import { Matcher, Reducer } from "../common";
@@ -69,16 +71,12 @@ export const makeLoadingMatcher = <
         };
 
         const doUpdates = (fields: FieldOpts<State, Result, Meta>) => {
+          // eslint-disable-next-line prefer-const
           let fieldUpdates: Partial<State> = { ...(state as State) };
 
           const originalStatus = getStatus();
 
           for (const field in fields) {
-            console.error(
-              `${field} = ${JSON.stringify(fields[field])} (${typeof fields[
-                field
-              ]}) ${originalStatus.status}`
-            );
             if (!isFulfilled(originalStatus)) {
               (fieldUpdates[field] as Loading<any, any>) = originalStatus;
               continue;
@@ -90,7 +88,7 @@ export const makeLoadingMatcher = <
             if (typeof opt === "object") {
               if (opt.transform) {
                 status = mapLoading(status, (result?: Result) =>
-                  result ? opt.transform!(result) : null
+                  result ? opt.transform?.(result) : null
                 );
               }
 

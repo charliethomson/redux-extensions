@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export * from "./loading";
 export * as loading from "./loading";
 export * from "./thunk";
@@ -38,7 +39,7 @@ interface ActionReducerMapBuilderWithExtensions<State> {
     matcher: TypeGuard<A> | ((action: any) => boolean),
     reducer: CaseReducer<State, A extends AnyAction ? A : A & AnyAction>
   ): Omit<ActionReducerMapBuilderWithExtensions<State>, "addCase">;
-  addDefaultCase(reducer: CaseReducer<State, AnyAction>): {};
+  addDefaultCase(reducer: CaseReducer<State, AnyAction>): object;
 }
 // This is used to retrofit the addLoadingMatcher onto the ActionReducerMapBuilder
 export const addExtensions = <State>(
@@ -86,7 +87,7 @@ export const addExtensions = <State>(
     this._inner.addMatcher(matcher, reducer);
     return this;
   };
-  b.addDefaultCase = function (reducer: CaseReducer<State, AnyAction>): {} {
+  b.addDefaultCase = function (reducer: CaseReducer<State, AnyAction>): object {
     this._inner.addDefaultCase(reducer);
     return {};
   };

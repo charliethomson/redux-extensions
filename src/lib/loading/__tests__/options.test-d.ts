@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { __ } from "lodash";
 import { Loading } from "../core";
 import { FieldOpt, FieldSettings, MakeLoadingMatcherOpts } from "../options";
@@ -25,7 +26,7 @@ type MockState = {
   nonLoading: string;
   optionalNonLoading?: string;
 
-  optionalUntypedLoading?: Loading<any>;
+  optionalUntypedLoading?: Loading<unknown>;
   optionalTypedLoading?: Loading<string>;
   optionalObjectLoading?: Loading<MockObject>;
   optionalObjectLoadingWithSubDetails?: Loading<MockObject>;
@@ -135,7 +136,7 @@ type _StringOpts_ObjectFieldWithSubDetails_ShouldBeFieldOpt = Expect<
   FieldOpt<MockState, string, Meta, "objectFieldWithSubDetails"> | undefined
 >;
 type _StringOpts_ObjectFieldWithSubDetails_ShouldBeLoading = Expect<
-  Loading<any>,
+  Loading<never>,
   MockState["objectFieldWithSubDetails"]
 >;
 type _StringOpts_ObjectFieldWithSubDetails_ShouldNotBeUndefined = Expect<

@@ -11,10 +11,12 @@ import {
 import { internal } from "../internal";
 import { mapLoading } from "./map";
 
-type ArrayType<Parent> = Parent extends Array<infer R> ? R : never;
+export type ArrayType<Parent> = Parent extends Array<infer R> ? R : never;
 
 export interface JoinOptions<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   OriginalItems extends any[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   NewItems extends any[]
 > {
   /// NOTE: If mapper is not provided it's assumed NewItems === OriginalItems
@@ -26,7 +28,9 @@ export interface JoinOptions<
     | ((items: OriginalItems) => OriginalItems);
 }
 export const joinLoading = <
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   OriginalItems extends any[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   NewItems extends any[]
 >(
   original: Loading<OriginalItems>,
@@ -45,7 +49,10 @@ export const joinLoading = <
 
     // keyof
     if (typeof opts.dedup === "string")
-      return uniqBy(items, (item) => item[opts.dedup]) as OriginalItems;
+      return uniqBy(
+        items,
+        (item) => item[opts.dedup as keyof ArrayType<OriginalItems>]
+      ) as OriginalItems;
 
     return items;
   };

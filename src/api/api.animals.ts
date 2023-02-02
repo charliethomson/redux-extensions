@@ -1,5 +1,3 @@
-import { call, createInstance } from "./api.common";
-
 export type AnimalId = number;
 export type Unit = string;
 export type OwnerId = number;
@@ -40,7 +38,6 @@ export interface AnimalDetails {
   };
 }
 
-const instance = createInstance();
 const TIMEOUT = 500;
 
 const mocks = {
@@ -86,7 +83,7 @@ export const AnimalApi = {
       setTimeout(() => resolve(mocks.getDogs), TIMEOUT)
     );
   },
-  getPetDetails: (id: AnimalId): Promise<AnimalDetails> => {
+  getPetDetails: (_id: AnimalId): Promise<AnimalDetails> => {
     return new Promise((resolve) =>
       setTimeout(() => resolve(mocks.getPetDetails), TIMEOUT)
     );

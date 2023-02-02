@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Chance } from "chance";
 import { uniq } from "lodash-es";
@@ -12,7 +13,7 @@ import {
   makeLoadingMatcher,
 } from "..";
 import { Matcher, Reducer } from "../../common";
-import { FieldOpt, MakeLoadingMatcherOpts } from "../options";
+import { MakeLoadingMatcherOpts } from "../options";
 
 interface MockState {
   name: Loading<string>;

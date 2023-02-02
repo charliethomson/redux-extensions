@@ -4,7 +4,6 @@ import {
   LoadingRejected,
   LoadingFulfilled,
 } from "./core";
-import { internal } from "./internal";
 
 export const makePending = (): LoadingPending => ({ status: "pending" });
 export const makeIdle = (): LoadingIdle => ({ status: "idle" });

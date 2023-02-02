@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch as useReduxDispatch } from "react-redux";
-import PokemonApi from "../api/api.pokemon";
 import pokemonReducer from "./pokemon";
 import animalReducer from "./animals";
 

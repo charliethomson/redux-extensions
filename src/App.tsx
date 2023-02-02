@@ -68,8 +68,6 @@ export const PokemonList = () => {
     (state: RootState) => state.pokemon
   );
 
-  console.log(selectedPokemonName);
-
   return (
     <div>
       <button

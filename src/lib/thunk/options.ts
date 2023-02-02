@@ -1,4 +1,4 @@
-import { PayloadAction, CaseReducer, Draft } from "@reduxjs/toolkit";
+import { Draft } from "@reduxjs/toolkit";
 import { Reducer } from "../common";
 
 export type MakeThunkMatcherOptsOrHandler<State, Result, Meta> =

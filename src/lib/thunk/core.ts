@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AsyncThunk, PayloadAction, Draft } from "@reduxjs/toolkit";
 import { Matcher, Reducer } from "../common";
 import { isField, isHandler, isOptions } from "./identities";
 import { MakeThunkMatcherOptsOrHandler } from "./options";
 
 const setField = <
-  State = any,
+  State = object,
   Arg = any,
   Result = any,
   Meta = { arg: Arg },

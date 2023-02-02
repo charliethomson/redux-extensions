@@ -1,5 +1,4 @@
 import { ActionReducerMapBuilder } from "@reduxjs/toolkit";
-import { Chance } from "chance";
 import { describe, expect, it, vi } from "vitest";
 import { addExtensions, Loading } from "..";
 
@@ -36,13 +35,13 @@ describe("Add extensions", () => {
 
   it("retains the original behaviour", () => {
     const builder = setup();
-    builder.addCase("", (_s, _a) => {});
+    builder.addCase("", (_s, _a) => undefined);
     expect(mockAddCase).toHaveBeenCalledOnce();
-    builder.addDefaultCase((_s, _a) => {});
+    builder.addDefaultCase((_s, _a) => undefined);
     expect(mockAddDefaultCase).toHaveBeenCalledOnce();
     builder.addMatcher(
       (_a) => false,
-      (_s, _a) => {}
+      (_s, _a) => undefined
     );
     expect(mockAddMatcher).toHaveBeenCalledOnce();
   });
