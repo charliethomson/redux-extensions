@@ -1,0 +1,21 @@
+name: Version Increment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+
+    if: "!startsWith(github.event.head_commit.message, '(chore:version)')"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.REPOSITORY_ACCESS_TOKEN }}
+      - run: git config --global user.name 'version-boy'
+      - run: git config --global user.email 'charlie@thmsn.dev'
+      - run: npm version patch -m "(chore:version) %s"
+      - run: git push
