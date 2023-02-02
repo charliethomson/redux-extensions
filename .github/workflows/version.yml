@@ -14,8 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.REPOSITORY_ACCESS_TOKEN }}
-      - run: git config --global user.name 'version-boy'
-      - run: git config --global user.email 'charlie@thmsn.dev'
-      - run: npm version patch -m "(chore:version) %s"
-      - run: git push
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Increment version
+        run: |
+          git config --global user.name 'version-boy'
+          git config --global user.email 'charlie@thmsn.dev'
+          npm version patch -m "(chore:version) %s"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
