@@ -5,6 +5,11 @@ import { Loading, makeIdle } from "../lib/loading";
 
 export const fetchCats = createAsyncThunk("animals/cats", AnimalApi.getCats);
 export const fetchDogs = createAsyncThunk("animals/dogs", AnimalApi.getDogs);
+export const maybeFetchDog = createAsyncThunk("animals/dog", async () => {
+  const dogs = await AnimalApi.getDogs();
+  if (Math.random() < 0.5) return undefined;
+  return { dog: dogs[0] };
+});
 export const petDetails = createAsyncThunk(
   "animals/details",
   AnimalApi.getPetDetails
@@ -16,12 +21,14 @@ export interface AnimalState {
   animalDetails: Record<AnimalId, Loading<AnimalDetails>>;
   animalDetailsTest: Record<AnimalId, string>;
   name?: Loading<string>;
+  nonNullableAnimal: Loading<Animal>;
 }
 
 const initialState: AnimalState = {
   animalSearch: makeIdle(),
   animalDetails: {},
   animalDetailsTest: {},
+  nonNullableAnimal: makeIdle(),
 };
 
 export const animalSlice = createSlice({
@@ -40,6 +47,9 @@ export const animalSlice = createSlice({
         animalDetails: {
           byId: (action) => action.meta.arg,
         },
+      })
+      .addLoadingMatcher(maybeFetchDog, {
+        nonNullableAnimal: (result) => result?.dog,
       }),
 });
 

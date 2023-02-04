@@ -88,7 +88,16 @@ export const makeLoadingMatcher = <
             if (typeof opt === "object") {
               if (opt.transform) {
                 status = mapLoading(status, (result?: Result) =>
-                  result ? opt.transform?.(result) : null
+                  result
+                    ? opt.transform?.(
+                        result,
+                        (
+                          state[
+                            field as keyof Draft<State>
+                          ] as LoadingFulfilled<any>
+                        )?.data
+                      )
+                    : null
                 );
               }
 
@@ -109,7 +118,12 @@ export const makeLoadingMatcher = <
               status = mapLoading(status, (result) =>
                 result
                   ? (opt as TransformFunction<State, Result, keyof State>)(
-                      result
+                      result,
+                      (
+                        state[
+                          field as keyof Draft<State>
+                        ] as LoadingFulfilled<any>
+                      )?.data
                     )
                   : null
               );

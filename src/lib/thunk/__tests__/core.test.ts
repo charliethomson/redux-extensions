@@ -96,6 +96,21 @@ describe("makeThunkReducer", () => {
     reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
     expect(state.name).toBe(expectedName);
   });
+  it("creates a matcher that respects the field option with the transform option, with previous value", () => {
+    const expectedName = mockName.slice(0, 5);
+    const [state, _, reducer] = setup({
+      name: (name, prev) => prev?.slice(0, 5) ?? name,
+    });
+    expect(state.name).toBeUndefined();
+    reducer(state, makeMockAction(mockThunk.pending.toString()));
+    expect(state.name).toBeUndefined();
+    reducer(state, makeMockAction(mockThunk.rejected.toString()));
+    expect(state.name).toBeUndefined();
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect(state.name).toBe(mockName);
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect(state.name).toBe(expectedName);
+  });
   it("creates a matcher that respects the status callbacks passed", () => {
     const mockOnPending = vi.fn();
     const mockOnRejected = vi.fn();
@@ -125,5 +140,24 @@ describe("makeThunkReducer", () => {
     expect(mockOnPending).toHaveBeenCalledOnce();
     expect(mockOnRejected).toHaveBeenCalledOnce();
     expect(mockOnFulfilled).toHaveBeenCalledOnce();
+  });
+  it("creates reducers that support the field level life-cycle options", () => {
+    const [state, _, reducer] = setup({
+      name: {
+        onPending: () => "mockOnPending",
+        onRejected: () => "mockOnRejected",
+        onFulfilled: () => "mockOnFulfilled",
+      },
+    });
+    expect(state.name).toBeUndefined();
+
+    reducer(state, makeMockAction(mockThunk.pending.toString()));
+    expect(state.name).toBe("mockOnPending");
+
+    reducer(state, makeMockAction(mockThunk.rejected.toString()));
+    expect(state.name).toBe("mockOnRejected");
+
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect(state.name).toBe("mockOnFulfilled");
   });
 });
