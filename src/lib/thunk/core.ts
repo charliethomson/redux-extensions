@@ -67,15 +67,15 @@ export const makeThunkMatcher = <
               handler as FieldHandlers<State, Result, Meta, keyof State>;
 
             if (action.type.endsWith("fulfilled")) {
-              const result = onFulfilled?.(action, state as any);
+              const result = onFulfilled?.(state as any, action);
               if (result !== undefined) (state as any)[field as any] = result;
             }
             if (action.type.endsWith("pending")) {
-              const result = onPending?.(action, state as any);
+              const result = onPending?.(state as any, action);
               if (result !== undefined) (state as any)[field as any] = result;
             }
             if (action.type.endsWith("rejected")) {
-              const result = onRejected?.(action, state as any);
+              const result = onRejected?.(state as any, action);
               if (result !== undefined) (state as any)[field as any] = result;
             }
           });
