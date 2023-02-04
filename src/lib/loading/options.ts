@@ -34,7 +34,7 @@ export type FieldSettings<State, Result, Meta, Field extends keyof State> = {
             Result extends any[] ? Result : never[]
           >
     : never;
-  byId?: State[Field] extends Record<infer R, any>
+  groupBy?: State[Field] extends Record<infer R, any>
     ? (action: PayloadAction<Result, string, Meta, any>) => R
     : never;
 };
