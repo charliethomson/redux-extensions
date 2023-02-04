@@ -45,7 +45,7 @@ export const animalSlice = createSlice({
       })
       .addLoadingMatcher(petDetails, {
         animalDetails: {
-          byId: (action) => action.meta.arg,
+          groupBy: (action) => action.meta.arg,
         },
       })
       .addLoadingMatcher(maybeFetchDog, {

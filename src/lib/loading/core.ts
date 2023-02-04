@@ -6,12 +6,7 @@ import { Matcher, Reducer } from "../common";
 
 import { makePending, makeFulfilled, makeRejected } from "./constructors";
 import { isFulfilled } from "./identities";
-import {
-  FieldOpts,
-  isCommonOption,
-  MakeLoadingMatcherOpts,
-  TransformFunction,
-} from "./options";
+import { FieldOpts, isCommonOption, MakeLoadingMatcherOpts } from "./options";
 import { joinLoading, JoinOptions, mapLoading } from "./util";
 
 export interface LoadingPending {
@@ -50,6 +45,77 @@ export type LoadingInnerErr<TLoading> = TLoading extends LoadingRejected<
   ? E
   : never;
 
+const getStatus = <Data, Error, Meta>(
+  status: LoadingStatus,
+  action: PayloadAction<Data, string, Meta, any>
+): Loading<Data, Error> => {
+  if (status === "pending") return makePending();
+  if (status === "rejected") return makeRejected(action.error);
+  return makeFulfilled(action.payload);
+};
+
+const applyTransformOption = <State, Result, Meta, Field extends keyof State>(
+  option: FieldOpts<State, Result, Meta>[Field],
+  status: Loading<any>,
+  state: State,
+  field: Field
+): Loading<any> => {
+  if (typeof option !== "object" || option.transform === undefined)
+    return status;
+
+  const currentValue = state[field] as LoadingFulfilled<any>;
+
+  const mapper = (result?: Result) =>
+    result ? option.transform?.(result, currentValue.data) : null;
+
+  return mapLoading(status, mapper);
+};
+const applyTransform = <State, Result, Meta, Field extends keyof State>(
+  option: FieldOpts<State, Result, Meta>[Field],
+  status: Loading<any>,
+  state: State,
+  field: Field
+): Loading<any> => {
+  if (typeof option !== "function") return status;
+
+  const currentValue = state[field] as LoadingFulfilled<any>;
+
+  const mapper = (result?: Result) =>
+    result ? option(result, currentValue.data) : null;
+
+  return mapLoading(status, mapper);
+};
+const applyJoin = <State, Result, Meta, Field extends keyof State>(
+  option: FieldOpts<State, Result, Meta>[Field],
+  status: Loading<any>,
+  state: State,
+  field: Field
+): Loading<any> => {
+  if (typeof option !== "object" || option.join === undefined) return status;
+
+  let joinOptions = option.join as JoinOptions<any, any>;
+  if (typeof joinOptions === "boolean")
+    joinOptions = {} as JoinOptions<any, any>;
+
+  const currentValue = state[field] as any;
+
+  return joinLoading(currentValue, status, joinOptions);
+};
+const applyGroupBy = <State, Result, Meta, Field extends keyof State>(
+  fieldUpdates: Partial<State>,
+  option: FieldOpts<State, Result, Meta>[Field],
+  status: Loading<any>,
+  action: PayloadAction<Result, string, Meta, any>,
+  field: Field
+): Partial<State> => {
+  if (typeof option === "object" && option.groupBy) {
+    (fieldUpdates[field] as any)[option.groupBy(action).toString()] = status;
+  } else {
+    (fieldUpdates[field] as Loading<any, any>) = status;
+  }
+  return fieldUpdates;
+};
+
 export const makeLoadingMatcher = <
   State = any,
   Result = any,
@@ -64,17 +130,11 @@ export const makeLoadingMatcher = <
       action.type.startsWith(thunk.typePrefix),
     (state: Draft<State>, action: PayloadAction<Result, string, Meta, any>) => {
       const reduce = (status: Exclude<LoadingStatus, "idle">) => {
-        const getStatus = (): Loading<Result, typeof action.error> => {
-          if (status === "pending") return makePending();
-          if (status === "rejected") return makeRejected(action.error);
-          return makeFulfilled(action.payload);
-        };
-
         const doUpdates = (fields: FieldOpts<State, Result, Meta>) => {
           // eslint-disable-next-line prefer-const
           let fieldUpdates: Partial<State> = { ...(state as State) };
 
-          const originalStatus = getStatus();
+          const originalStatus = getStatus(status, action);
 
           for (const field in fields) {
             if (!isFulfilled(originalStatus)) {
@@ -82,60 +142,19 @@ export const makeLoadingMatcher = <
               continue;
             }
 
+            const opt = fields[field];
             // status is fulfilled<Result>
             let status = cloneDeep<Loading<any>>(originalStatus);
-            const opt = fields[field];
-            if (typeof opt === "object") {
-              if (opt.transform) {
-                status = mapLoading(status, (result?: Result) =>
-                  result
-                    ? opt.transform?.(
-                        result,
-                        (
-                          state[
-                            field as keyof Draft<State>
-                          ] as LoadingFulfilled<any>
-                        )?.data
-                      )
-                    : null
-                );
-              }
-
-              if (opt.join) {
-                const joinOptions =
-                  typeof opt.join === "boolean"
-                    ? ({} as JoinOptions<any, any>)
-                    : opt.join;
-
-                status = joinLoading(
-                  state[field as keyof Draft<State>] as Loading<any>,
-                  status as Loading<any>,
-                  joinOptions as any
-                );
-              }
-            } else if (typeof opt === "function") {
-              // opt == TransformFunction
-              status = mapLoading(status, (result) =>
-                result
-                  ? (opt as TransformFunction<State, Result, keyof State>)(
-                      result,
-                      (
-                        state[
-                          field as keyof Draft<State>
-                        ] as LoadingFulfilled<any>
-                      )?.data
-                    )
-                  : null
-              );
-            }
-
-            if (typeof opt === "object" && opt.byId) {
-              (fieldUpdates[field] as Record<string, Loading<any, any>>)[
-                opt.byId(action).toString()
-              ] = status;
-            } else {
-              (fieldUpdates[field] as Loading<any, any>) = status;
-            }
+            status = applyTransformOption(opt, status, state as State, field);
+            status = applyJoin(opt, status, state as State, field);
+            status = applyTransform(opt, status, state as State, field);
+            fieldUpdates = applyGroupBy(
+              fieldUpdates,
+              opt,
+              status,
+              action,
+              field
+            );
           }
 
           state = merge(state, fieldUpdates);

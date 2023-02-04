@@ -258,11 +258,11 @@ describe("makeThunkReducer", () => {
     ]);
   });
 
-  it("correctly handles independent states using byId", () => {
+  it("correctly handles independent states using groupBy", () => {
     const ID = 3;
     const [state, _, reducer] = setup(undefined, {
       details: {
-        byId: (action) => action.meta.arg,
+        groupBy: (action) => action.meta.arg,
       },
     });
     reducer(
