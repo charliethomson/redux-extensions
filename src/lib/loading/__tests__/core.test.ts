@@ -106,6 +106,18 @@ describe("makeThunkReducer", () => {
       mockName.slice(0, 3)
     );
   });
+  it("creates a reducer that respects the transform variant, with previous value", () => {
+    const [state, _, reducer] = setup(undefined, {
+      name: (name, prev) => prev?.slice(0, 3) ?? name,
+    });
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect(isFulfilled(state.name)).toBeTruthy();
+    expect((state.name as LoadingFulfilled<string>).data).toBe(mockName);
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect((state.name as LoadingFulfilled<string>).data).toBe(
+      mockName.slice(0, 3)
+    );
+  });
 
   it("creates a reducer that respects the transform option", () => {
     const [state, _, reducer] = setup(undefined, {
@@ -118,6 +130,18 @@ describe("makeThunkReducer", () => {
     );
   });
 
+  it("creates a reducer that respects the transform option, with previous value", () => {
+    const [state, _, reducer] = setup(undefined, {
+      name: { transform: (name, prev) => prev?.slice(0, 3) ?? name },
+    });
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect(isFulfilled(state.name)).toBeTruthy();
+    expect((state.name as LoadingFulfilled<string>).data).toBe(mockName);
+    reducer(state, makeMockAction(mockThunk.fulfilled.toString()));
+    expect((state.name as LoadingFulfilled<string>).data).toBe(
+      mockName.slice(0, 3)
+    );
+  });
   it("correctly merges items using the join option", () => {
     const [state, _, reducer] = setup(undefined, {
       items: { join: true },

@@ -20,8 +20,9 @@ type CommonOpts<State, Result, Meta> = {
 };
 
 export type TransformFunction<State, Result, Field extends keyof State> = (
-  result: Result
-) => LoadingInner<State[Field]>;
+  result: Result,
+  previousValue?: LoadingInner<State[Field]>
+) => LoadingInner<State[Field]> | undefined;
 
 export type FieldSettings<State, Result, Meta, Field extends keyof State> = {
   transform?: TransformFunction<State, Result, Field>;

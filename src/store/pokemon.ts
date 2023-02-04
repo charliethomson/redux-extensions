@@ -12,6 +12,7 @@ export interface PokemonState {
   cache: Record<number, Loading<Pokemon>>;
   selectedPokemon?: Pokemon;
   selectedPokemonName?: string;
+  something?: boolean;
 }
 
 const initialState: PokemonState = {
@@ -26,6 +27,9 @@ export const pokemonSlice = createSlice({
     addExtensions(builder).addThunkMatcher(fetchPokemon, {
       selectedPokemonName: (result) => result.name,
       selectedPokemon: true,
+      something: {
+        onPending: () => true,
+      },
     }),
 });
 
