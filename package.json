@@ -2,9 +2,9 @@
   "name": "@charliethomson/redux-extensions",
   "version": "0.1.12",
   "type": "module",
-  "main": "./react-extensions.umd.cjs",
-  "module": "./react-extensions.js",
-  "types": "./index.d.ts",
+  "main": "./dist/react-extensions.umd.cjs",
+  "module": "./dist/react-extensions.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "keywords": [
     "redux",
@@ -21,8 +21,8 @@
   },
   "exports": {
     ".": {
-      "import": "./react-extensions.js",
-      "require": "./react-extensions.umd.cjs"
+      "import": "./dist/react-extensions.js",
+      "require": "./dist/react-extensions.umd.cjs"
     }
   },
   "scripts": {
