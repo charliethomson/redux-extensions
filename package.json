@@ -1,6 +1,6 @@
 {
   "name": "@charliethomson/redux-extensions",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "type": "module",
   "main": "./react-extensions.umd.cjs",
   "module": "./react-extensions.js",
