@@ -25,12 +25,14 @@ const Details: FC<{ id: AnimalId }> = ({ id }) => {
 };
 export const AnimalList = () => {
   const dispatch = useDispatch();
-  const { animals } = useSelector((state: RootState) => ({
+  const { animals, state } = useSelector((state: RootState) => ({
     animals: state.animals.animalSearch,
+    state: state.animals,
   }));
 
   return (
     <div>
+      <p>is loaded? {state.animalStatus}</p>
       <button onClick={() => dispatch(fetchCats())}>Search for cats</button>
       <button onClick={() => dispatch(fetchDogs())}>Search for dogs</button>
       <LoadingSwitch
