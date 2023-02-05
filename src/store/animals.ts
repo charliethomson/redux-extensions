@@ -21,14 +21,14 @@ export interface AnimalState {
   animalDetails: Record<AnimalId, Loading<AnimalDetails>>;
   animalDetailsTest: Record<AnimalId, string>;
   name?: Loading<string>;
-  nonNullableAnimal: Loading<Animal>;
+  animalStatus: string;
 }
 
 const initialState: AnimalState = {
   animalSearch: makeIdle(),
   animalDetails: {},
   animalDetailsTest: {},
-  nonNullableAnimal: makeIdle(),
+  animalStatus: "idle",
 };
 
 export const animalSlice = createSlice({
@@ -48,8 +48,12 @@ export const animalSlice = createSlice({
           groupBy: (action) => action.meta.arg,
         },
       })
-      .addLoadingMatcher(maybeFetchDog, {
-        nonNullableAnimal: (result) => result?.dog,
+      .addThunkMatcher(fetchCats, {
+        animalStatus: {
+          onPending: () => "pending",
+          onRejected: () => "rejected",
+          onFulfilled: () => "fulfilled",
+        },
       }),
 });
 
