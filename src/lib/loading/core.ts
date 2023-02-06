@@ -137,12 +137,18 @@ export const makeLoadingMatcher = <
           const originalStatus = getStatus(status, action);
 
           for (const field in fields) {
+            const opt = fields[field];
             if (!isFulfilled(originalStatus)) {
-              (fieldUpdates[field] as Loading<any, any>) = originalStatus;
+              fieldUpdates = applyGroupBy(
+                fieldUpdates,
+                opt,
+                originalStatus,
+                action,
+                field
+              );
               continue;
             }
 
-            const opt = fields[field];
             // status is fulfilled<Result>
             let status = cloneDeep<Loading<any>>(originalStatus);
             status = applyTransformOption(opt, status, state as State, field);
