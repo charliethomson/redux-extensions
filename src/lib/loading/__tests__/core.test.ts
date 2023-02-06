@@ -265,6 +265,12 @@ describe("makeThunkReducer", () => {
         groupBy: (action) => action.meta.arg,
       },
     });
+    reducer(state, makeMockAction(mockThunk.pending.toString(), mockName, ID));
+    expect(isPending(state.details[ID])).toBeTruthy();
+
+    reducer(state, makeMockAction(mockThunk.rejected.toString(), mockName, ID));
+    expect(isRejected(state.details[ID])).toBeTruthy();
+
     reducer(
       state,
       makeMockAction(mockThunk.fulfilled.toString(), mockName, ID)
