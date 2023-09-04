@@ -20,9 +20,13 @@
     "url": "https://github.com/charliethomson/redux-extensions"
   },
   "exports": {
-    ".": {
-      "import": "./dist/react-extensions.js",
-      "require": "./dist/react-extensions.umd.cjs"
+    "import": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/react-extensions.js"
+    },
+    "require": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/react-extensions.umd.cjs"
     }
   },
   "scripts": {
